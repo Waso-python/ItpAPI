@@ -1,15 +1,26 @@
+import re
+from time import sleep
 import requests
 import json
+import psycopg2
+from my_set import DB_NAME, HOST_DB, PORT_DB, USER_DB, PASSWORD_DB
+
+def get_db_connection():
+    
+    connection = psycopg2.connect(database=DB_NAME, user=USER_DB, password=PASSWORD_DB, host=HOST_DB, port=PORT_DB)
+    cursor = connection.cursor()
+    return connection
 
 def main():
     """
     Main function
     """
     session = get_session()
-    # get_catalog(session)
-    # get_products(session)
-    # get_stock(session)
-    get_one_product(session, 10278489)
+    get_catalog(session)
+    get_products(session)
+    get_stock(session)
+    # get_one_product(session, 10278489)
+    # get_image(session, 187005)
 
 def get_one_product(session, sku:int):
     """
@@ -51,6 +62,30 @@ def get_catalog(session):
     with open('catalog.json', 'w', encoding='utf-8') as f:
         json.dump(response, f, ensure_ascii=False, indent=4)
 
+def get_image(session, sku:list):
+    sleep(1)
+    url = "https://b2b.i-t-p.pro/api/2"
+    req = {
+    "filter": [
+        {
+            "operator": "IN",
+            "property": "sku",
+            "value": sku
+        }
+    ],
+    "request": {
+        "method": "read_new",
+        "model": "products_clients_images",
+        "module": "platform"
+    },
+    "session": session,
+}
+    data = json.dumps(req)
+    response = requests.get(url, data=data)
+    response = json.loads(json.dumps(response.json()))
+    if response['success']:
+        return(response['data']['product_images'])
+
 def get_stock(session):
     """
     Get stock
@@ -90,8 +125,8 @@ def get_session():
     url = "https://b2b.i-t-p.pro/api/2"
     req = {
     "data": {
-        "login": "********",
-        "password": "********",
+        "login": "ks.gulk.client2",
+        "password": "123456",
     },
     "request": {
         "method": "login",
@@ -101,14 +136,12 @@ def get_session():
     }
     data = json.dumps(req)
     response = requests.get(url, data=data)
-    # response = {"event":0,"expires":"","session":"399354321715A16A387909B1E3352C2C876ECD755DB2273710AA1E1AB584A4DD","success":'true',"total":0}
+    print(response.text)
     response = json.loads(json.dumps(response.json()))
     api_key = response['session']
     return api_key
 
 
 
-
-
 if __name__ == '__main__':
-    main()
+    get_session()
