@@ -13,6 +13,7 @@ def get_db_connection():
 
 def main():
     """
+
     Main function
     """
     session = get_session()
@@ -48,12 +49,9 @@ def get_one_product(session, sku:int):
     with open(f'{sku}_products.json', 'w', encoding='utf-8') as f:
         json.dump(response, f, ensure_ascii=False, indent=4)
 
-
-
-
 def get_catalog(session):
     """
-    Get catalog once per day
+    Get catalog 1 per minute
     """
     url = "https://b2b.i-t-p.pro/download/catalog/json/catalog_tree.json"
     cookies = {'session': session}
@@ -63,7 +61,10 @@ def get_catalog(session):
         json.dump(response, f, ensure_ascii=False, indent=4)
 
 def get_image(session, sku:list):
-    sleep(1)
+    """
+    Get image max 100 sku's  2 per second
+    """
+    sleep(0.6)
     url = "https://b2b.i-t-p.pro/api/2"
     req = {
     "filter": [
@@ -88,7 +89,7 @@ def get_image(session, sku:list):
 
 def get_stock(session):
     """
-    Get stock
+    Get stock 10 per hour
     """
     url = "https://b2b.i-t-p.pro/api/2"
     req = {
@@ -105,11 +106,9 @@ def get_stock(session):
     with open('active_products.json', 'w', encoding='utf-8') as f:
         json.dump(response, f, ensure_ascii=False, indent=4)
 
-
-
 def get_products(session):
     """
-    Get all products
+    Get all products 2 per hour
     """
     url = "https://b2b.i-t-p.pro/download/catalog/json/products.json"
     cookies = {'session': session}
@@ -120,7 +119,7 @@ def get_products(session):
 
 def get_session():
     """
-    Get session
+    Get session offen 10 per minut
     """
     url = "https://b2b.i-t-p.pro/api/2"
     req = {
@@ -142,6 +141,5 @@ def get_session():
     return api_key
 
 
-
 if __name__ == '__main__':
-    get_session()
+    main()
