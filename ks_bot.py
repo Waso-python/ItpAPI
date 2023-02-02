@@ -7,7 +7,6 @@ from aiogram.types import Message, InputMediaPhoto
 from bot_utils import get_product_by_text, get_product_from_db
 
 logging.basicConfig(level=logging.INFO)
-# Объект бота
 
 # Диспетчер
 dp = Dispatcher()
@@ -52,7 +51,7 @@ async def echo_message(msg: Message):
 
 # Запуск процесса поллинга новых апдейтов
 def main():
-    bot = Bot("5502903597:AAEDz-ReB0xNcSckBzfTsL7UxNWcyk2SK8k", parse_mode="HTML")
+    bot = Bot("", parse_mode="HTML")
     dp.run_polling(bot)
 
 if __name__ == "__main__":
