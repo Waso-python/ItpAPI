@@ -6,7 +6,7 @@ from bot_utils import get_product_by_text, get_product_from_db
 # Включаем логирование, чтобы не пропустить важные сообщения
 logging.basicConfig(level=logging.INFO)
 # Объект бота
-bot = Bot(token="5502903597:AAEDz-ReB0xNcSckBzfTsL7UxNWcyk2SK8k")
+bot = Bot(token="")
 # Диспетчер
 dp = Dispatcher(bot)
 
