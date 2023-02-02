@@ -1,7 +1,7 @@
 import psycopg2
 import json
 from psycopg2 import OperationalError
-from my_set import PASSWORD_DB, HOST_DB, PORT_DB, DB_NAME, USER_DB, BOT_DB, BOT_HOST_DB, BOT_PASSWORD_DB, BOT_PORT_DB, BOT_USER_DB
+from my_set import  BOT_DB, BOT_HOST_DB, BOT_PASSWORD_DB, BOT_PORT_DB, BOT_USER_DB
 from datetime import datetime
 
 

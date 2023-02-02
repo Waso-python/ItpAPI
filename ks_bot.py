@@ -1,45 +1,59 @@
 import asyncio
 import logging
-from aiogram import Bot, Dispatcher, types
+from aiogram import Bot, Dispatcher, types, html
+from aiogram.filters import Command
+from aiogram.types import Message, InputMediaPhoto
+
 from bot_utils import get_product_by_text, get_product_from_db
 
-# Включаем логирование, чтобы не пропустить важные сообщения
 logging.basicConfig(level=logging.INFO)
 # Объект бота
-bot = Bot(token="5502903597:AAEDz-ReB0xNcSckBzfTsL7UxNWcyk2SK8k")
+
 # Диспетчер
-dp = Dispatcher(bot)
+dp = Dispatcher()
+logger = logging.getLogger(__name__)
+
 
 # Хэндлер на команду /start
-@dp.message_handler(commands=['start'])
-async def process_start_command(message: types.Message):
-    await message.reply("Привет!\nНапиши мне что-нибудь!")
-
-@dp.message_handler(commands=['help'])
-async def process_help_command(message: types.Message):
-    await message.reply("Напиши мне что-нибудь, и я отпрпавлю этот текст тебе в ответ!")
-
-@dp.message_handler()
-async def echo_message(msg: types.Message):
+@dp.message()
+async def echo_message(msg: Message):
     res_dict = get_product_from_db(msg.text) 
-    if len(res_dict) <= 15:
-        for el in res_dict:
-            res_string = str(el[7]) + '\n' + el[2] + '\n' + el[1] + '\n' + str(el[3]) + '\n' + str(el[4]) if el else 'NOT FOUND'
-            await bot.send_message(msg.from_user.id, res_string)
-            i = 0
-            if el[5]:
-                urls = el[5].split(', ')
-                for url in urls:
-                    if i < 2:
-                        await bot.send_photo(msg.from_user.id, photo='https://b2b.i-t-p.pro/'+url+'?size=original')
-                        i+=1
+    res_list = ''
+    media_group = []
+    if len(res_dict) > 0:
+        if len(res_dict) <= 15:
+            for el in res_dict:
+                res_string = str(el[7]) + '\n' + el[2] + '\n' + el[1] + '\n' + str(el[3]) + '\n' + str(el[4])
+                # await msg.answer(res_string)
+                i = 0
+                if el[5]:
+                    urls = el[5].split(', ')
+                    cap = res_string
+                    for url in urls:
+                        if i < 2:
+                            if cap:
+                                photo=InputMediaPhoto(type='photo', media = 'https://b2b.i-t-p.pro/'+url+'?size=original', caption = cap)
+                                cap = ''
+                            else:
+                                photo=InputMediaPhoto(type='photo', media = 'https://b2b.i-t-p.pro/'+url+'?size=original')
+                            media_group.append(photo)
+                            i+=1
+                    await msg.answer_media_group(media=media_group)
+                else:
+                    await msg.answer(res_string)
+        else:
+            for el in res_dict:
+                
+                res_list = f"<b>{str(el[7])}</b>\n{el[2]}\n{el[1]}\n{str(el[3])}\n{str(el[4])}"
+                await msg.reply(res_list, parse_mode="HTML")
     else:
-        res_string = 'Too mach result - {}'.format(len(res_dict))
-        await bot.send_message(msg.from_user.id, res_string)
+        res_list = 'Ничего не найдено, перефразируйте запрос'
+        await msg.reply(res_list, parse_mode="HTML")
 
 # Запуск процесса поллинга новых апдейтов
-async def main():
-    await dp.start_polling(bot)
+def main():
+    bot = Bot("5502903597:AAEDz-ReB0xNcSckBzfTsL7UxNWcyk2SK8k", parse_mode="HTML")
+    dp.run_polling(bot)
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()
